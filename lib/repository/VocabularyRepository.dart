@@ -31,14 +31,14 @@ class VocabularyRepository {
   Future<void> _loadFromAsset() async {
     final String response = await rootBundle.loadString('assets/$_fileName');
     final List<dynamic> data = json.decode(response);
-    _items = data.map((item) => VocabularyItem.fromJson(item)).toList();
+    _items = data.map((item) => VocabularyItem.fromMap(item)).toList();
   }
 
   Future<void> _loadFromLocal() async {
     final file = await _localFile;
     final String localData = await file.readAsString();
     final List<dynamic> localItems = json.decode(localData);
-    _items = localItems.map((item) => VocabularyItem.fromJson(item)).toList();
+    _items = localItems.map((item) => VocabularyItem.fromMap(item)).toList();
   }
 
   Future<File> get _localFile async {
@@ -49,7 +49,7 @@ class VocabularyRepository {
   Future<void> _saveToLocal() async {
     final file = await _localFile;
     final List<Map<String, dynamic>> jsonList = 
-        _items.map((item) => item.toJson()).toList();
+        _items.map((item) => item.toMap()).toList();
     await file.writeAsString(json.encode(jsonList));
   }
 

@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:practice_english/models/QuizQuestion.dart';
 import 'package:practice_english/models/VocabularyItem.dart';
 
-
 class QuizScreen extends StatefulWidget {
   final List<VocabularyItem> vocabularyList;
 
-  const QuizScreen({required this.vocabularyList});
+  QuizScreen({required this.vocabularyList});
 
   @override
   _QuizScreenState createState() => _QuizScreenState();
@@ -27,15 +26,13 @@ class _QuizScreenState extends State<QuizScreen> {
 
   void _initializeQuiz() {
     _questions = widget.vocabularyList.map((item) {
-      // Obtener 2 traducciones incorrectas diferentes
+      // Se obtienen 2 traducciones incorrectas de forma aleatoria.
       final incorrectTranslations = widget.vocabularyList
           .where((element) => element.translation != item.translation)
           .map((e) => e.translation)
-          .toSet() // Evita duplicados
+          .toSet()
           .toList()
         ..shuffle();
-
-      // Seleccionar máximo 2 incorrectas
       final incorrectAnswers = incorrectTranslations.take(2).toList();
 
       return QuizQuestion(
@@ -43,15 +40,13 @@ class _QuizScreenState extends State<QuizScreen> {
         correctAnswer: item.translation,
         options: [item.translation, ...incorrectAnswers]..shuffle(),
       );
-    }).toList()
-      ..shuffle();
+    }).toList()..shuffle();
   }
 
   void _handleAnswer(int selectedIndex) {
     setState(() {
       _selectedAnswerIndex = selectedIndex;
       _showFeedback = true;
-
       if (_questions[_currentQuestionIndex].options[selectedIndex] ==
           _questions[_currentQuestionIndex].correctAnswer) {
         _score++;
@@ -128,7 +123,7 @@ class _QuizScreenState extends State<QuizScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_questions.isEmpty) return Center(child: CircularProgressIndicator());
+    if (_questions.isEmpty) return Scaffold(body: Center(child: CircularProgressIndicator()));
 
     final currentQuestion = _questions[_currentQuestionIndex];
 

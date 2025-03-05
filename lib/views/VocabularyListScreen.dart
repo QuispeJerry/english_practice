@@ -39,21 +39,22 @@ class _VocabularyListScreenState extends State<VocabularyListScreen> {
   // }
 
   Future<void> _addNewWord() async {
-    final newItem = await showDialog<VocabularyItem>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Agregar nueva palabra'),
-        content: SingleChildScrollView(
-          child: AddVocabularyForm(),
-        ),
+  final newItem = await showDialog<VocabularyItem>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('Agregar nueva palabra'),
+      content: SingleChildScrollView(
+        child: AddVocabularyForm(folderId: 0), // Se pasa el folderId requerido
       ),
-    );
+    ),
+  );
 
-    if (newItem != null) {
-      await _repository.addItem(newItem);
-      _refreshList();
-    }
+  if (newItem != null) {
+    await _repository.addItem(newItem);
+    _refreshList();
   }
+}
+
 
   Future<void> _editWord(int index) async {
     final itemToEdit = _items[index];
