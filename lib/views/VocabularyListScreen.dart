@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:practice_english/models/VocabularyItem.dart';
 import 'package:practice_english/repository/VocabularyRepository.dart';
 import 'package:practice_english/views/QuizScreen.dart';
+import 'package:practice_english/widgets/AddVocabularyForm.dart';
 
 class VocabularyListScreen extends StatefulWidget {
   @override
@@ -25,16 +26,33 @@ class _VocabularyListScreenState extends State<VocabularyListScreen> {
     });
   }
 
+  // Future<void> _addNewWord() async {
+  //   final newItem = VocabularyItem(
+  //     word: 'New Word',
+  //     translation: 'Nueva Palabra',
+  //     meaning: 'New meaning',
+  //     note: '',
+  //   );
+
+  //   await _repository.addItem(newItem);
+  //   _refreshList();
+  // }
+
   Future<void> _addNewWord() async {
-    final newItem = VocabularyItem(
-      word: 'New Word',
-      translation: 'Nueva Palabra',
-      meaning: 'New meaning',
-      note: '',
+    final newItem = await showDialog<VocabularyItem>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Agregar nueva palabra'),
+        content: SingleChildScrollView(
+          child: AddVocabularyForm(),
+        ),
+      ),
     );
 
-    await _repository.addItem(newItem);
-    _refreshList();
+    if (newItem != null) {
+      await _repository.addItem(newItem);
+      _refreshList();
+    }
   }
 
   Future<void> _editWord(int index) async {

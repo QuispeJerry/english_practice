@@ -11,10 +11,21 @@ class VocabularyRepository {
 
   List<VocabularyItem> _items = [];
   final String _fileName = 'english_vocabulary.json';
+  bool _isInitialized = false;
 
   Future<void> initialize() async {
-    await _loadFromAsset();
-    await _mergeWithLocal();
+    if (_isInitialized) return;
+    
+    final file = await _localFile;
+    if (await file.exists()) {
+      // If local file exists, load from it
+      await _loadFromLocal();
+    } else {
+      // If no local file exists, load from asset and create local file
+      await _loadFromAsset();
+      await _saveToLocal();
+    }
+    _isInitialized = true;
   }
 
   Future<void> _loadFromAsset() async {
@@ -23,21 +34,16 @@ class VocabularyRepository {
     _items = data.map((item) => VocabularyItem.fromJson(item)).toList();
   }
 
+  Future<void> _loadFromLocal() async {
+    final file = await _localFile;
+    final String localData = await file.readAsString();
+    final List<dynamic> localItems = json.decode(localData);
+    _items = localItems.map((item) => VocabularyItem.fromJson(item)).toList();
+  }
+
   Future<File> get _localFile async {
     final directory = await getApplicationDocumentsDirectory();
     return File('${directory.path}/$_fileName');
-  }
-
-  Future<void> _mergeWithLocal() async {
-    final file = await _localFile;
-    if (await file.exists()) {
-      final String localData = await file.readAsString();
-      final List<dynamic> localItems = json.decode(localData);
-      _items = [
-        ..._items,
-        ...localItems.map((item) => VocabularyItem.fromJson(item))
-      ].toSet().toList(); // Evita duplicados
-    }
   }
 
   Future<void> _saveToLocal() async {
@@ -47,7 +53,7 @@ class VocabularyRepository {
     await file.writeAsString(json.encode(jsonList));
   }
 
-  // Operaciones CRUD
+  // CRUD Operations
   List<VocabularyItem> getAll() => List.from(_items);
 
   Future<void> addItem(VocabularyItem item) async {
@@ -56,13 +62,16 @@ class VocabularyRepository {
   }
 
   Future<void> updateItem(int index, VocabularyItem newItem) async {
-    _items[index] = newItem;
-    await _saveToLocal();
+    if (index >= 0 && index < _items.length) {
+      _items[index] = newItem;
+      await _saveToLocal();
+    }
   }
 
   Future<void> deleteItem(int index) async {
-    _items.removeAt(index);
-    await _saveToLocal();
+    if (index >= 0 && index < _items.length) {
+      _items.removeAt(index);
+      await _saveToLocal();
+    }
   }
 }
-
